@@ -1,12 +1,13 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 
-const URL = require('./models/url')
+const URL = require("./models/url");
 
-const {connectToMongoDB} = require('./connect');
+const { connectToMongoDB } = require("./connect");
 
-connectToMongoDB('mongodb://localhost:27017/short-url')
-.then(() => console.log("MongoDB Connected!"))
+connectToMongoDB("mongodb://localhost:27017/short-url").then(() =>
+  console.log("MongoDB Connected!")
+);
 
 const urlRoute = require("./routes/url");
 const PORT = 8001;
@@ -14,16 +15,21 @@ const PORT = 8001;
 app.use(express.json());
 
 app.use("/url", urlRoute);
-app.get('/:shortId', async(req, res) => {
-    const shortId = req.params.shortId;
-    const entry = await URL.findOneAndUpdate({
-        shortId
-    }, {$push:{
+app.get("/:shortId", async (req, res) => {
+  const shortId = req.params.shortId;
+  const entry = await URL.findOneAndUpdate(
+    {
+      shortId,
+    },
+    {
+      $push: {
         visitHistory: {
-            timestamp: Date.now(),
+          timestamp: Date.now(),
         },
-    }});
-    res.redirect(entry.redeirectURL);
-})
+      },
+    }
+  );
+  res.redirect(entry.redeirectURL);
+});
 
 app.listen(PORT, () => console.log(`Server started on ${PORT}`));
